@@ -2,6 +2,7 @@ from sponge.sponge import Sponge
 import time
 
 sponge = Sponge(ncols=4, nrows=4)
+sponge.connect()
 
 try:
     for i in range(100):
