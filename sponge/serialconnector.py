@@ -55,7 +55,7 @@ class SerialConnector(object):
 
             # Ask user to select device.
             device = input("Enter number: ")
-            self.device = self.devices[int(device)]
+            self.device = self.available_devices[int(device)]
 
         if self.device is "test":
             self.ser = None
