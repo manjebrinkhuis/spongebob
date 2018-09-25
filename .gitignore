@@ -101,7 +101,6 @@ ENV/
 .mypy_cache/
 
 old/
-run*.py
 *.ipynb
 
 source/

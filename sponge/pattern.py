@@ -61,14 +61,14 @@ def parse_file(fname, delimiter=","):
         # Skip line with "X"
         if line[0].capitalize() == "X":
             continue
-        
+
         # Extract pattern number
         p = [val for val in line if "P" in val][0]
         n = int(p[1:])
 
         # The columns before the current pattern
         precols = line[:line.index(p)]
-        
+
         # Extract values for each motor from line
         motors = line[line.index("S%d" % n)+1: line.index("I%d" % n)]
         active = line[line.index("E%d" % n)+1: line.index("S%d" % n)]
@@ -89,7 +89,7 @@ def parse_file(fname, delimiter=","):
             "motors"        : motors,
             "intensities"   : intensities,
         }
-        
+
         # Include additional columns that
         # appeared before the Pattern number
         for i, col in enumerate(precols):
@@ -100,18 +100,18 @@ def parse_file(fname, delimiter=","):
 
     return patterns
 
-def get_difference_motor_position(m0, m1):
-    
-    motors = np.array([
-        (0, 1, 2, 3),
-        (4, 5, 6, 7),
-        (8, 9, 10, 11),
-        (12, 13, 14, 15),
-    ])
+
+def create_motor_layout(ncols, nrows):
+    return np.arange(nrows*ncols).reshape((nrows, ncols))
+
+
+def get_difference_motor_position(m0, m1, ncols=4, nrows=4):
+
+    motors = create_motor_layout(ncols, nrows)
 
     ys, xs = np.indices(motors.shape)
     coords0 = np.array((xs[motors == m0], ys[motors == m0]))
-    coords1 = np.array((xs[motors == m1], ys[motors == m1]))    
+    coords1 = np.array((xs[motors == m1], ys[motors == m1]))
     x, y = np.squeeze(coords1 - coords0)
-    
+
     return x, y

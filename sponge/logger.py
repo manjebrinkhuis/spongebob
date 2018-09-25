@@ -14,11 +14,12 @@ class Logger():
                  participant=0,
                  condition=0,
                  session=0,
+                 prefix="",
                  location="./data"
                  ):
 
         # Create filename
-        fname = "part_%03d_cond_%03d_sess_%03d.csv" % (
+        fname = prefix + "part_%03d_cond_%03d_sess_%03d.csv" % (
             int(participant),
             int(condition),
             int(session))

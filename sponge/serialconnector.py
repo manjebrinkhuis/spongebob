@@ -27,7 +27,7 @@ class SerialConnector(object):
             devices = ['COM%s' % (i + 1) for i in range(256)]
         elif sys.platform.startswith('linux'):
             # Create device names for Linux "/dev/tty"
-            devices = glob.glob('/dev/ttyACM*')
+            devices = glob.glob('/dev/ttyUSB*')
         elif sys.platform.startswith('darwin'):
             # Create device names for Apple
             devices = glob.glob('/dev/tty.*')
@@ -46,6 +46,8 @@ class SerialConnector(object):
 
     def connect(self):
         """Connect to device"""
+
+        self.ser = None
 
         if self.device is None:
         # Print all devices
