@@ -22,7 +22,7 @@ MOVES = np.concatenate((
     moves_left_down, moves_left_up
 ))
 
-DEVICE = "/dev/ttyUSB0"
+DEVICE = None
 
 TRIALS_BEFORE_BREAK = 80
 INTER_INTERVAL_MIN = 1.1

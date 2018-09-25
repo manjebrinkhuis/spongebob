@@ -18,6 +18,9 @@ class Logger():
                  location="./data"
                  ):
 
+        if not os.path.exists(location):
+            os.mkdir(location)
+            
         # Create filename
         fname = prefix + "part_%03d_cond_%03d_sess_%03d.csv" % (
             int(participant),
