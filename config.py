@@ -19,12 +19,16 @@ moves_left_down[:, 0] *= -1
 MOVES = np.concatenate((
     moves_down, moves_up, moves_left, moves_right,
     moves_right_down, moves_right_up,
-    moves_left_down, moves_left_up
+    moves_left_down, moves_left_up, [[0, 0]]
 ))
 
-DEVICE = None
+# Change this to None to ask to attach COM port
+DEVICE = "test"
 
-TRIALS_BEFORE_BREAK = 80
+# There are 25 directions * 2 conditions = 50 trial types
+# 12 trials per trial type gives 12 * 50 = 600 trials
+TRIALS_PER_CONDITION = 12
+TRIALS_BEFORE_BREAK = 100
 INTER_INTERVAL_MIN = 1.1
 INTER_INTERVAL_MAX = 1.7
 
@@ -38,5 +42,7 @@ STRONG = 100
 STIMULUS_RESPONSE_INTERVAL_MIN = .1
 STIMULUS_RESPONSE_INTERVAL_MAX = .1
 
+# Display options: These only change how the motors are displayed
 MIRROR_X = False
-MIRROT_Y = False
+MIRROR_Y = False
+REVERSE_AXES = True

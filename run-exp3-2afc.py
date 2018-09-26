@@ -11,13 +11,15 @@ from sponge.pattern import (
 
 from config import (
     CENTER, MOVES, LAYOUT, TRIALS_BEFORE_BREAK,
+    TRIALS_PER_CONDITION,
     INTER_INTERVAL_MIN, INTER_INTERVAL_MAX,
     MOTOR1_DURATION, MOTOR2_DURATION,
     WEAK, STRONG,
     INTER_MOTOR_INTERVAL_MIN, INTER_MOTOR_INTERVAL_MAX,
     STIMULUS_RESPONSE_INTERVAL_MIN, STIMULUS_RESPONSE_INTERVAL_MAX,
-    DEVICE,
+    DEVICE, MIRROR_X, MIRROR_Y, REVERSE_AXES
     )
+
 
 class Experiment():
 
@@ -50,32 +52,45 @@ class Experiment():
         core.wait(duration)
 
     def run(self):
-        while not self.trials.is_finished:
 
-            output = self.trials.run()
-            self.win.flip()
+        try:
+            self.break_stim.run()
+            while not self.trials.is_finished:
 
-            self.blank_interval(
-                STIMULUS_RESPONSE_INTERVAL_MIN, STIMULUS_RESPONSE_INTERVAL_MAX)
+                output = self.trials.run()
+                self.win.flip()
 
-            resp = self.response.run()
-            output = output.join(resp)
+                self.blank_interval(
+                    STIMULUS_RESPONSE_INTERVAL_MIN, STIMULUS_RESPONSE_INTERVAL_MAX)
 
-            self.logger.log(output)
+                resp = self.response.run()
+                output = output.join(resp)
 
-            print(output)
+                self.logger.log(output)
 
-            self.blank_interval(
-                INTER_INTERVAL_MIN, INTER_INTERVAL_MAX)
+                print(output)
 
-            need_break = self.trials.trial_nr & ((self.trials.trial_nr % self.ntrials_to_break) == 0)
-            if need_break:
-                self.break_stim.run()
+                self.blank_interval(
+                    INTER_INTERVAL_MIN, INTER_INTERVAL_MAX)
+
+                need_break = self.trials.trial_nr & ((self.trials.trial_nr % self.ntrials_to_break) == 0)
+
+                if "escape" in event.getKeys():
+                    break
+
+                if need_break:
+                    self.break_stim.run()
+
+
+        except KeyboardInterrupt:
+            print("Stopped by user")
+        finally:
+            self.close()
 
 
 class Trial(object):
 
-    def __init__(self, win, layout=LAYOUT, center=CENTER, moves=MOVES):
+    def __init__(self, win, layout=LAYOUT, center=CENTER, moves=MOVES, device=DEVICE):
         self.win = win
 
         y, x = layout.shape
@@ -89,20 +104,22 @@ class Trial(object):
         self.text_stim = visual.TextStim( win, text="Running sponge" )
         self.center = center
         self.layout = layout
-        self.moves = MOVES
-        self.motors_visual = [None, ] * (len(MOVES) + 1)
+        self.moves = moves
+        self.motors_visual = [None, ] * len(moves)
 
         # Create display
-        for move in np.vstack((MOVES, (0,0))):
+        for move in moves:
             x, y = move
+            x *= -1 if MIRROR_X else 1
+            y *= -1 if MIRROR_Y else 1
+            x, y = (y, x) if REVERSE_AXES else (x, y)
+
             x, y = center + np.array([x, -y])
             motor = layout[y, x]
             circle = visual.Circle(win, fillColor=(0,0,0), pos=move, radius=.5)
             num = visual.TextStim(win, text=motor, pos=move, height=.5)
-            self.motors_visual[motor] = {
-                "circle": circle,
-                "num": num
-            }
+
+            self.motors_visual[motor] = ( circle, num )
 
     def set_move(self, move):
         self.move = move
@@ -111,10 +128,10 @@ class Trial(object):
         self.intensity = (first, second)
 
     def draw_motors(self):
-        for el in self.motors_visual:
-            el["circle"].fillColor = (0,0,0)
-            el["circle"].draw()
-            el["num"].draw()
+        for circle, num in self.motors_visual:
+            circle.fillColor = (0,0,0)
+            circle.draw()
+            num.draw()
 
     def run(self):
         # First motor (central)
@@ -126,8 +143,8 @@ class Trial(object):
         self.sponge.motor_on(intensity=first, motor=motor)
 
         self.draw_motors()
-        self.motors_visual[motor]["circle"].fillColor = (1,1,1)
-        self.motors_visual[motor]["circle"].draw()
+        self.motors_visual[motor][0].fillColor = (1,1,1)
+        self.motors_visual[motor][0].draw()
         self.win.flip()
         core.wait(MOTOR1_DURATION)
 
@@ -149,8 +166,8 @@ class Trial(object):
         self.sponge.motor_on(intensity=second, motor=motor)
 
         self.draw_motors()
-        self.motors_visual[motor]["circle"].fillColor = (1,1,1)
-        self.motors_visual[motor]["circle"].draw()
+        self.motors_visual[motor][0].fillColor = (1,1,1)
+        self.motors_visual[motor][0].draw()
         self.win.flip()
         core.wait(MOTOR2_DURATION)
 
@@ -161,10 +178,12 @@ class Trial(object):
 
 class Trials(Trial):
     """"""
-    def __init__(self, win, trials_per_move=9, conditions=2, **kwargs):
+    def __init__(self, win, trials_per_condition=TRIALS_PER_CONDITION, **kwargs):
         super(Trials, self).__init__(win, **kwargs)
 
-        x, y = np.tile(MOVES.T, trials_per_move)
+        moves = kwargs["moves"]
+
+        x, y = np.tile(moves.T, trials_per_condition)
 
         self.trials = pd.DataFrame({
             "move_x": np.tile(x, 2),
@@ -221,6 +240,9 @@ class Break():
             self.win.flip()
             core.wait(1)
 
+        self.text.test = "Press a key to continue..."
+        self.win.flip()
+        core.wait(1)
 
 class Response():
 
