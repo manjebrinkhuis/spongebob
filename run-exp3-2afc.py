@@ -17,7 +17,7 @@ from config import (
     WEAK, STRONG,
     INTER_MOTOR_INTERVAL_MIN, INTER_MOTOR_INTERVAL_MAX,
     STIMULUS_RESPONSE_INTERVAL_MIN, STIMULUS_RESPONSE_INTERVAL_MAX,
-    DEVICE, MIRROR_X, MIRROR_Y, REVERSE_AXES
+    DEVICE, MIRROR_X, MIRROR_Y, REVERSE_AXES, DISPLAY
     )
 
 
@@ -90,7 +90,11 @@ class Experiment():
 
 class Trial(object):
 
-    def __init__(self, win, layout=LAYOUT, center=CENTER, moves=MOVES, device=DEVICE):
+    def __init__(
+        self, win,
+        layout=LAYOUT, center=CENTER,
+        moves=MOVES, device=DEVICE, display=DISPLAY):
+
         self.win = win
 
         y, x = layout.shape
@@ -105,21 +109,24 @@ class Trial(object):
         self.center = center
         self.layout = layout
         self.moves = moves
+        self.display = display
+
         self.motors_visual = [None, ] * len(moves)
 
         # Create display
-        for move in moves:
-            x, y = move
-            x *= -1 if MIRROR_X else 1
-            y *= -1 if MIRROR_Y else 1
-            x, y = (y, x) if REVERSE_AXES else (x, y)
+        if self.display:
+            for move in moves:
+                x, y = move
+                x *= -1 if MIRROR_X else 1
+                y *= -1 if MIRROR_Y else 1
+                x, y = (y, x) if REVERSE_AXES else (x, y)
 
-            x, y = center + np.array([x, -y])
-            motor = layout[y, x]
-            circle = visual.Circle(win, fillColor=(0,0,0), pos=move, radius=.5)
-            num = visual.TextStim(win, text=motor, pos=move, height=.5)
+                x, y = center + np.array([x, -y])
+                motor = layout[y, x]
+                circle = visual.Circle(win, fillColor=(0,0,0), pos=move, radius=.5)
+                num = visual.TextStim(win, text=motor, pos=move, height=.5)
 
-            self.motors_visual[motor] = ( circle, num )
+                self.motors_visual[motor] = ( circle, num )
 
     def set_move(self, move):
         self.move = move
@@ -142,17 +149,19 @@ class Trial(object):
         self.sponge.start()
         self.sponge.motor_on(intensity=first, motor=motor)
 
-        self.draw_motors()
-        self.motors_visual[motor][0].fillColor = (1,1,1)
-        self.motors_visual[motor][0].draw()
-        self.win.flip()
-        core.wait(MOTOR1_DURATION)
+        if self.display:
+            self.draw_motors()
+            self.motors_visual[motor][0].fillColor = (1,1,1)
+            self.motors_visual[motor][0].draw()
+            self.win.flip()
 
+        core.wait(MOTOR1_DURATION)
         self.sponge.motor_off(motor=motor)
 
-        # Inter motor interval
-        self.draw_motors()
-        self.win.flip()
+        if self.display:
+            # Inter motor interval
+            self.draw_motors()
+            self.win.flip()
 
         interval = (INTER_MOTOR_INTERVAL_MIN, INTER_MOTOR_INTERVAL_MAX)
         duration = np.random.rand() * np.diff(interval) + interval[0]
@@ -165,10 +174,12 @@ class Trial(object):
 
         self.sponge.motor_on(intensity=second, motor=motor)
 
-        self.draw_motors()
-        self.motors_visual[motor][0].fillColor = (1,1,1)
-        self.motors_visual[motor][0].draw()
-        self.win.flip()
+        if self.display:
+            self.draw_motors()
+            self.motors_visual[motor][0].fillColor = (1,1,1)
+            self.motors_visual[motor][0].draw()
+            self.win.flip()
+
         core.wait(MOTOR2_DURATION)
 
         self.sponge.motor_off(motor=motor)

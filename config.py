@@ -45,4 +45,5 @@ STIMULUS_RESPONSE_INTERVAL_MAX = .1
 # Display options: These only change how the motors are displayed
 MIRROR_X = False
 MIRROR_Y = False
-REVERSE_AXES = True
+REVERSE_AXES = False
+DISPLAY = False
