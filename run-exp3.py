@@ -238,7 +238,7 @@ class Break():
             self.win.flip()
             core.wait(1)
 
-        self.text.test = "Press a key to continue..."
+        self.text.text = "Press a key to continue..."
         self.win.flip()
         core.wait(1)
 
@@ -377,7 +377,7 @@ def main():
     logger = Logger(
         prefix="exp3_",
     )
-    
+
     y, x = LAYOUT.shape
     sponge = Sponge(ncols=y, nrows=x, device=DEVICE)
     try:
