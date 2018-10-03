@@ -24,18 +24,13 @@ from config import (
 class Experiment():
 
     def __init__(
-        self, win, trials,
+        self, win, logger, trials,
         participant=0, condition=0, session=0,
         ntrials_to_break=TRIALS_BEFORE_BREAK
         ):
 
         self.win = win
-        self.logger = Logger(
-            prefix="exp3_",
-            participant=participant,
-            condition=condition,
-            session=session,
-        )
+        self.logger = logger
 
         self.trials = trials
         self.response = Response(win)
@@ -91,20 +86,12 @@ class Experiment():
 class Trial(object):
 
     def __init__(
-        self, win,
+        self, win, sponge,
         layout=LAYOUT, center=CENTER,
         moves=MOVES, device=DEVICE, display=DISPLAY):
 
         self.win = win
-
-        y, x = layout.shape
-        self.sponge = Sponge(ncols=y, nrows=x, device=DEVICE)
-
-        try:
-            self.sponge.connect()
-        except KeyboardInterrupt:
-            print("Cancelled by user. No sponge used.")
-
+        self.sponge = sponge
         self.text_stim = visual.TextStim( win, text="Running sponge" )
         self.center = center
         self.layout = layout
@@ -189,8 +176,8 @@ class Trial(object):
 
 class Trials(Trial):
     """"""
-    def __init__(self, win, trials_per_condition=TRIALS_PER_CONDITION, **kwargs):
-        super(Trials, self).__init__(win, **kwargs)
+    def __init__(self, win, sponge, trials_per_condition=TRIALS_PER_CONDITION, **kwargs):
+        super(Trials, self).__init__(win, sponge, **kwargs)
 
         moves = kwargs["moves"]
 
@@ -206,7 +193,7 @@ class Trials(Trial):
         self.is_finished = False
 
     def __next__(self):
-        if self.trial_nr >= len(self.trials):
+        if self.trial_nr >= (len(self.trials) - 1):
             self.is_finished = True
         self.trial_nr += 1
 
@@ -387,6 +374,17 @@ class MouseHandler(event.Mouse):
 
 
 def main():
+    logger = Logger(
+        prefix="exp3_",
+    )
+    
+    y, x = LAYOUT.shape
+    sponge = Sponge(ncols=y, nrows=x, device=DEVICE)
+    try:
+        sponge.connect()
+    except KeyboardInterrupt:
+        print("Cancelled by user. No sponge used.")
+
     mon = monitors.Monitor('sponge', width=40, distance=57)
     mon.setSizePix((1920, 1080))
 
@@ -396,11 +394,12 @@ def main():
         monitor=mon,
         color=(-1,-1,-1),
         units='deg',
+        fullscr=True
     )
 
-    trials = Trials(win, layout=LAYOUT, center=CENTER, moves=MOVES)
-    exp = Experiment(win, trials)
+    trials = Trials(win, sponge, layout=LAYOUT, center=CENTER, moves=MOVES)
 
+    exp = Experiment(win, logger, trials)
     exp.run()
 
 if __name__ == "__main__":
