@@ -2,6 +2,12 @@
 
 ## Run experiment
 
-Open a terminal (e.g. anaconda prompt on Windows). Activate Psychopy environment (e.g. `activate py27` if you called the environment `py27`).
+### Windows
 
-Then, type `python run-exp-3-2afc.py` to run experiment 3.
+1. Open anaconda prompt.
+
+2. Activate Psychopy environment (e.g. `activate psychopy2` in labb 3).
+
+3. Change the directory to the spongebob directory.
+
+4. To run experiment 3, type `python run-exp-3.py` to run experiment 3.
