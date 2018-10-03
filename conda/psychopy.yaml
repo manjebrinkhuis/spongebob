@@ -66,4 +66,4 @@ dependencies:
   - python-bidi
   - sounddevice
   - soundfile
-  - psychopy==1.85.1
+  - psychopy==1.85.2
