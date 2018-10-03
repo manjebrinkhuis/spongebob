@@ -4,6 +4,12 @@ Installation guide for Windows
 
 ## Dependencies
 
+### Drivers (windows)
+
+You may need to install the following driver.
+
+https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers
+
 ### Install Miniconda
 
 To run Spongebob, you need Python 2.7. You can create a conda Python-2.7 environment
@@ -21,10 +27,6 @@ Install Miniconda with all the recommended defaults. That is:
 - Don´t add Miniconda to your system path (i.e. don´t tick the mark that says to do that).
 
 Now you have an application called anaconda prompt. You can run it from the start menu.
-
-### Drivers (windows)
-
-https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers
 
 ## Download Spongebob
 
