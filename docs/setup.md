@@ -4,7 +4,7 @@ Installation guide for Windows
 
 ## Dependencies
 
-### Drivers (windows)
+### Drivers
 
 You may need to install the following driver.
 
