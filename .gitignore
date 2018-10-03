@@ -102,6 +102,6 @@ ENV/
 
 old/
 *.ipynb
-
+*.pyc
 source/
 data/
