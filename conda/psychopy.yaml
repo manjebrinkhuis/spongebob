@@ -14,7 +14,6 @@ dependencies:
 - future
 - gevent
 - greenlet
-- libffi
 - lxml
 - matplotlib
 - moviepy
